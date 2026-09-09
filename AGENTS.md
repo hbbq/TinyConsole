@@ -58,10 +58,17 @@ Use these names when recommending how a task should be executed:
 
 - DEV — Sol / medium
   Implement well-specified TODOs and normal development work.
+  A TODO may be technically complex and still be DEV if the intended
+  behavior and approach are sufficiently specified.
 
 - THINK — Astra / medium
-  Reason about ideas before turning them into TODOs, investigate solutions,
-  design architecture, or implement more complex TODOs.
+  Use when substantial reasoning is needed to determine what should be
+  built or how it should work: exploring ideas, investigation, evaluating
+  alternatives, architecture, or turning unclear requirements into
+  well-specified TODOs.
+
+  Do not recommend THINK merely because an implementation is large or
+  technically complex.
 
 - HARD — Astra / high
   Difficult debugging or unusually demanding tasks where deeper reasoning
@@ -70,3 +77,7 @@ Use these names when recommending how a task should be executed:
 When appropriate, state a recommended execution mode before starting work.
 Do not automatically prefer a higher mode; use the lowest mode appropriate
 for the task.
+
+Do not recommend a higher execution mode merely as a precaution.
+Recommend escalation only when the task actually requires the kind of
+reasoning described by the higher mode.
