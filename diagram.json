@@ -1,0 +1,86 @@
+{
+  "version": 1,
+  "author": "Anonymous maker",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-attiny85",
+      "id": "tiny",
+      "top": -1.2,
+      "left": -119.2,
+      "attrs": { "frequency": "1m" }
+    },
+    {
+      "type": "wokwi-max7219-matrix",
+      "id": "matrix1",
+      "top": -133.8,
+      "left": -100.58,
+      "attrs": { "chain": "2"}
+    },
+
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn1",
+      "top": -136.6,
+      "left": -220.8,
+      "attrs": {
+        "color": "green",
+        "xray": "1",
+        "key": "w"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn2",
+      "top": -79,
+      "left": -220.8,
+      "attrs": {
+        "color": "green",
+        "xray": "1",
+        "key": "s"
+      }
+    },
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn3",
+      "top": -21.4,
+      "left": -100.8,
+      "attrs": {
+        "color": "green",
+        "xray": "1",
+        "key": "j",
+        "label": "Action (J)"
+      }
+    },
+
+    {
+      "type": "chip-buttons",
+      "id": "buttons",
+      "top": 40,
+      "left": -220,
+      "attrs": {}
+    }
+  ],
+
+  "connections": [
+    [ "tiny:VCC", "matrix1:VCC", "red", [] ],
+    [ "tiny:GND", "matrix1:GND", "black", [] ],
+
+    [ "tiny:PB0", "matrix1:DIN", "green", [] ],
+    [ "tiny:PB2", "matrix1:CLK", "blue", [] ],
+    [ "tiny:PB1", "matrix1:CS", "yellow", [] ],
+
+    [ "buttons:UP", "btn1:1.l", "green", [] ],
+    [ "btn1:2.l", "tiny:GND", "black", [] ],
+
+    [ "buttons:DOWN", "btn2:1.l", "green", [] ],
+    [ "btn2:2.l", "tiny:GND", "black", [] ],
+
+    [ "buttons:ACTION", "btn3:1.l", "green", [] ],
+    [ "btn3:2.l", "tiny:GND", "black", [] ],
+
+    [ "buttons:OUT", "tiny:PB3", "orange", [] ]
+  ],
+
+  "dependencies": {}
+}

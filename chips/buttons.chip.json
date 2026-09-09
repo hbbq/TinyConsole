@@ -1,0 +1,5 @@
+{
+  "name": "3 Button ADC",
+  "author": "BQ",
+  "pins": ["UP", "DOWN", "ACTION", "OUT"]
+}
