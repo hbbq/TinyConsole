@@ -140,6 +140,9 @@ const uint8_t level1[] PROGMEM = {
 
 constexpr uint8_t GEOMETRY_MASK = 0b11111100;
 constexpr uint8_t META_MASK     = 0b00000011;
+// Metadata: 00 none, 01 patrol, 10 flyer, 11 reserved.
+// This full byte is reserved and must be checked before decoding a column.
+constexpr uint8_t LEVEL_END = 0b11111111;
 
 constexpr uint8_t PLAYER_COLUMN = 4;
 constexpr uint8_t LEVEL_TITLE = 0x80; // ANIM_TICK is otherwise 0..15.
@@ -163,6 +166,7 @@ enum stateSlot {
     SEED2 = 5,
     SEED3 = 6,
     LEVEL = 7,
+    ENEMY_FLAGS = 8, // Low bits: right/up; high bits: flying. Clear = left/down, ground.
     ENEMIES = 12, // FOUR BYTES
 };
 
@@ -420,7 +424,7 @@ uint8_t SrbApp::getLevelColumn(uint8_t x){
         default:
         case 1: {
 
-            if (x >= sizeof(level1) + 16) return B00000010;
+            if (x >= sizeof(level1) + 16) return LEVEL_END;
             if (x >= sizeof(level1)) return B10111100;
             return pgm_read_byte(&level1[x]);
 
@@ -428,7 +432,7 @@ uint8_t SrbApp::getLevelColumn(uint8_t x){
 
         case 2: {
 
-            if (x >= 255) return B00000010;
+            if (x >= 255) return LEVEL_END;
             if (x >= 239) return B10111100;
             if (x == 238) return B10000000;
 
@@ -517,12 +521,15 @@ void SrbApp::enterLevel(){
     console.state[XPOS] = PLAYER_COLUMN;
     console.state[YPOS] = 0;
     console.state[VELOCITY] = 0;
+    console.state[ENEMY_FLAGS] = 0;
     console.state[SEED1] = tinyRandom(255);
     console.state[SEED2] = tinyRandom(255);
     console.state[SEED3] = tinyRandom(255);
     
     for(uint8_t x = 0; x < console.Width; x++){
-        console.insertColumn(x, getLevelColumn(x));
+        uint8_t column = getLevelColumn(x);
+        if (column == LEVEL_END) break;
+        console.insertColumn(x, column & GEOMETRY_MASK);
     }
     for(uint8_t index = 0; index < ENEMY_COUNT; index++){
         console.state[ENEMIES + index] = 0;
@@ -541,7 +548,7 @@ bool SrbApp::move(bool right){
     if (right){
         if (console.getPixel(PLAYER_COLUMN + 1, ypos)) return false;
         uint8_t column = getLevelColumn(xpos - PLAYER_COLUMN + console.Width);
-        if (column == B00000010){
+        if (column == LEVEL_END){
             console.state[LEVEL] = console.state[LEVEL] >= LEVEL_COUNT
                 ? 1 : console.state[LEVEL] + 1;
             startLevel();
@@ -560,12 +567,16 @@ bool SrbApp::move(bool right){
             }
         }
 
-        if ((column & META_MASK) == B1) {
-            for(uint8_t* enemy = &console.state[ENEMIES];
-                enemy != &console.state[ENEMIES + ENEMY_COUNT]; ++enemy){
-                uint8_t data = *enemy;
+        uint8_t meta = column & META_MASK;
+        if (meta == 1 || meta == 2) {
+            for(uint8_t index = 0; index < ENEMY_COUNT; index++){
+                uint8_t data = console.state[ENEMIES + index];
                 if (!(data & ENEMY_ACTIVE)){
-                    *enemy = ENEMY_ACTIVE | (15 << 3) | 1;
+                    console.state[ENEMIES + index] = ENEMY_ACTIVE | (15 << 3) | 1;
+                    uint8_t direction = 1 << index;
+                    uint8_t flying = direction << ENEMY_COUNT;
+                    console.state[ENEMY_FLAGS] &= ~(direction | flying);
+                    if (meta == 2) console.state[ENEMY_FLAGS] |= flying;
                     break;
                 }
             }
@@ -573,8 +584,9 @@ bool SrbApp::move(bool right){
         xpos++;
     } else if (xpos > PLAYER_COLUMN){
         if (console.getPixel(PLAYER_COLUMN - 1, ypos)) return false;
+        uint8_t column = getLevelColumn(xpos - PLAYER_COLUMN - 1);
+        if (column == LEVEL_END) return false;
         console.shiftRight();
-        uint8_t column = getLevelColumn(xpos - PLAYER_COLUMN - 1);            
         console.insertColumn(0, column & GEOMETRY_MASK);   
         
         for(uint8_t* enemy = &console.state[ENEMIES];
@@ -597,7 +609,8 @@ bool SrbApp::move(bool right){
 }
 
 bool SrbApp::enemyBlocked(uint8_t x, uint8_t y) const {
-    if (console.getPixel(x, y)) return true;
+    // Lives share row zero with the world, but are never enemy terrain.
+    if (!(y == 0 && x >= console.Width - 4) && console.getPixel(x, y)) return true;
     // Falling below the screen must not wrap onto an enemy in row zero.
     if (y >= console.Height) return false;
     uint8_t position = ENEMY_ACTIVE | (x << 3) | y;
@@ -673,7 +686,7 @@ void SrbApp::doGravity(){
     for(uint8_t index = 0; index < ENEMY_COUNT; index++){
         uint8_t data = console.state[ENEMIES + index];
         bool active = (data >> 7) & B1;
-        if (active){
+        if (active && !(console.state[ENEMY_FLAGS] & (1 << (index + ENEMY_COUNT)))){
             uint8_t x = (data >> 3) & B1111;
             uint8_t y = (data >> 0) & B111;
             if (!enemyBlocked(x, y+1)) {
@@ -703,7 +716,7 @@ void SrbApp::drawEnemies(bool draw){
         if (active){
             uint8_t x = (data >> 3) & B1111;
             uint8_t y = (data >> 0) & B111;
-            console.setPixel(x, y, draw);
+            if (!(y == 0 && x >= console.Width - 4)) console.setPixel(x, y, draw);
         }
     }
 }
@@ -716,15 +729,34 @@ void SrbApp::moveEnemies(){
             uint8_t x = (data >> 3) & B1111;
             uint8_t y = (data >> 0) & B111;
 
-            if (enemyBlocked(x, y+1)){
-                if (x > PLAYER_COLUMN){
-                    if (!enemyBlocked(x-1, y)) x--;
-                } else if (x < PLAYER_COLUMN) {
-                    if (!enemyBlocked(x+1, y)) x++;
+            uint8_t direction = 1 << index;
+            if (console.state[ENEMY_FLAGS] & (direction << ENEMY_COUNT)){
+                uint8_t nextY = y + ((console.state[ENEMY_FLAGS] & direction) ? -1 : 1);
+                if (nextY >= console.Height || enemyBlocked(x, nextY)){
+                    console.state[ENEMY_FLAGS] ^= direction;
+                    continue;
                 }
+                console.state[ENEMIES + index] = ENEMY_ACTIVE | (x << 3) | nextY;
+                checkEnemyCollision(index, true);
+            } else if (enemyBlocked(x, y+1)){
+                uint8_t nextX = x + ((console.state[ENEMY_FLAGS] & direction) ? 1 : -1);
+                // Check before packing X so either edge despawns instead of wrapping.
+                if (nextX >= console.Width){
+                    console.state[ENEMIES + index] = data & ~ENEMY_ACTIVE;
+                    continue;
+                }
+
+                // Only terrain can provide a landing below an on-screen ledge.
+                uint8_t landingY = y + 1;
+                while (landingY < console.Height && !console.getPixel(nextX, landingY)) landingY++;
+                if (enemyBlocked(nextX, y) || landingY == console.Height){
+                    console.state[ENEMY_FLAGS] ^= direction;
+                    continue;
+                }
+
                 console.state[ENEMIES + index] =
                     (1) << 7 |
-                    (x & B1111) << 3 |
+                    (nextX & B1111) << 3 |
                     (y & B111);
                 checkEnemyCollision(index, true);
             }

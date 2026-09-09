@@ -11,17 +11,17 @@ Archive member included to satisfy reference by file (symbol)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
                               c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o (exit)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__mulhi3)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__mulhi3)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__udivmodqi4)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__udivmodqi4)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__udivmodhi4)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__udivmodhi4)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_copy_data.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__do_copy_data)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__do_copy_data)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_clear_bss.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__do_clear_bss)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__do_clear_bss)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_ctors.o)
-                              C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o (__do_global_ctors)
+                              C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o (__do_global_ctors)
 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_tablejump2.o)
                               c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_ctors.o) (__tablejump2__)
 
@@ -186,7 +186,7 @@ Linker script and memory map
 
 LOAD c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o
 LOAD .pio\build\attiny85\src\TinyRandom.cpp.o
-LOAD C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+LOAD C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
 LOAD .pio\build\attiny85\src\apps\BreakoutApp.cpp.o
 LOAD .pio\build\attiny85\src\apps\Game.cpp.o
 LOAD .pio\build\attiny85\src\apps\GameFactory.cpp.o
@@ -309,7 +309,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x1ca8
+.text           0x00000000     0x1df4
  *(.vectors)
  .vectors       0x00000000       0x1e c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o
                 0x00000000                __vector_default
@@ -325,7 +325,7 @@ END GROUP
  *libprintf_flt.a:*(.progmem.data)
  *libc.a:*(.progmem.data)
  *(.progmem*)
- .progmem.data  0x0000001e       0xaa C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+ .progmem.data  0x0000001e       0xaa C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
                 0x000000c8                . = ALIGN (0x2)
  *(.jumptables)
  *(.jumptables*)
@@ -333,7 +333,7 @@ END GROUP
  *(.lowtext*)
                 0x000000c8                __ctors_start = .
  *(.ctors)
- .ctors         0x000000c8        0x2 C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+ .ctors         0x000000c8        0x2 C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
                 0x000000ca                __ctors_end = .
                 0x000000ca                __dtors_start = .
  *(.dtors)
@@ -386,28 +386,28 @@ END GROUP
                 0x00000114                __vector_8
                 0x00000114                __vector_14
                 0x00000114                __vector_10
- .text          0x00000116      0x8fe C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
-                0x00000980                __vector_5
-                0x00000a14                . = ALIGN (0x2)
+ .text          0x00000116      0x910 C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
+                0x00000992                __vector_5
+                0x00000a26                . = ALIGN (0x2)
  *(.text.*)
- .text.startup  0x00000a14     0x1222 C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
-                0x00000a14                main
+ .text.startup  0x00000a26     0x135c C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
+                0x00000a26                main
  .text.libgcc.mul
-                0x00001c36       0x22 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
-                0x00001c36                __mulhi3
+                0x00001d82       0x22 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
+                0x00001d82                __mulhi3
  .text.libgcc.div
-                0x00001c58       0x18 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
-                0x00001c58                __udivmodqi4
+                0x00001da4       0x18 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
+                0x00001da4                __udivmodqi4
  .text.libgcc.div
-                0x00001c70       0x28 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
-                0x00001c70                __udivmodhi4
- .text.libgcc   0x00001c98        0xc c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_tablejump2.o)
-                0x00001c98                __tablejump2__
-                0x00001ca4                . = ALIGN (0x2)
+                0x00001dbc       0x28 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
+                0x00001dbc                __udivmodhi4
+ .text.libgcc   0x00001de4        0xc c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_tablejump2.o)
+                0x00001de4                __tablejump2__
+                0x00001df0                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00001ca4        0x0 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
-                0x00001ca4                _exit
-                0x00001ca4                exit
+ .fini9         0x00001df0        0x0 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+                0x00001df0                _exit
+                0x00001df0                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -426,14 +426,14 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00001ca4        0x4 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+ .fini0         0x00001df0        0x4 c:/users/mail/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
  *(.fini0)
-                0x00001ca8                _etext = .
+                0x00001df4                _etext = .
 
-.data           0x00800060        0x2 load address 0x00001ca8
+.data           0x00800060        0x2 load address 0x00001df4
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
- .data          0x00800060        0x1 C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+ .data          0x00800060        0x1 C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
  *(.data*)
  *(.gnu.linkonce.d*)
  *(.rodata)
@@ -447,12 +447,12 @@ END GROUP
 .bss            0x00800062       0x37
                 0x00800062                PROVIDE (__bss_start, .)
  *(.bss)
- .bss           0x00800062       0x37 C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+ .bss           0x00800062       0x37 C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
  *(.bss*)
  *(COMMON)
                 0x00800099                PROVIDE (__bss_end, .)
-                0x00001ca8                __data_load_start = LOADADDR (.data)
-                0x00001caa                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001df4                __data_load_start = LOADADDR (.data)
+                0x00001df6                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800099        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -500,7 +500,7 @@ END GROUP
 
 .comment        0x00000000       0x11
  *(.comment)
- .comment       0x00000000       0x11 C:\Users\mail\AppData\Local\Temp\ccbMYHLj.ltrans0.ltrans.o
+ .comment       0x00000000       0x11 C:\Users\mail\AppData\Local\Temp\ccXyPH2g.ltrans0.ltrans.o
                                  0x12 (size before relaxing)
 
 .note.gnu.avr.deviceinfo
