@@ -12,7 +12,7 @@ public:
 
     uint8_t getLevelColumn(uint8_t x);
 
-    void startLevel();
+    void startLevel(bool newLevel = true);
     // Returns true when movement starts the next level.
     bool move(bool right);
     void drawPlayer(bool draw);

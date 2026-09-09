@@ -48,3 +48,25 @@ No test framework is explicitly configured and no coverage threshold exists. Pla
 ## Commit & Pull Request Guidelines
 
 History contains only `Initial commit`, so no established message convention exists. Use concise, imperative subjects, such as `Fix launcher button debounce`. Keep commits focused. PRs should explain behavior changes, link relevant issues, record build and simulation/hardware checks, and include screenshots for visible changes. Explain intentional changes to generated `firmware.map` or chip binaries.
+
+## Codex execution modes
+
+Use these names when recommending how a task should be executed:
+
+- QUICK — Terra / low
+  Simple, fast, localized code changes requiring little analysis.
+
+- DEV — Sol / medium
+  Implement well-specified TODOs and normal development work.
+
+- THINK — Astra / medium
+  Reason about ideas before turning them into TODOs, investigate solutions,
+  design architecture, or implement more complex TODOs.
+
+- HARD — Astra / high
+  Difficult debugging or unusually demanding tasks where deeper reasoning
+  is worthwhile, such as aggressively optimizing RAM/flash usage.
+
+When appropriate, state a recommended execution mode before starting work.
+Do not automatically prefer a higher mode; use the lowest mode appropriate
+for the task.

@@ -33,6 +33,10 @@ Preserve any relevant constraints or decisions recorded with the item.
 
 ### 3. Implement
 
+Recommended execution mode: DEV by default.
+Use THINK when the TODO requires substantial design or investigation.
+Suggest HARD only for unusually difficult tasks.
+
 - Make the smallest sensible change that satisfies the Todo.
 - Follow existing project patterns.
 - Follow all constraints in `AGENTS.md`.

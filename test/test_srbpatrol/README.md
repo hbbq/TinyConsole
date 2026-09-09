@@ -19,6 +19,22 @@ test executable uses the compatible ATmega2560 instruction target. Run
 These checks do not emulate the display electronics or replace a Wokwi/hardware
 playthrough. Test artifacts go under the ignored `.pio/test_srbpatrol/` directory.
 
+## Retry layouts: manual regression checklist
+
+The existing 104 checks cover restart resets and level transitions. Seed lifetime
+and deterministic column lookup were reviewed in code. The user reported successful
+manual retry/progression playtesting on 2026-09-09. Retain this checklist for future
+Wokwi/hardware regression checks:
+
+- On procedural level 2, note terrain and enemy spawn locations, scroll backward
+  and forward, then lose all lives. Confirm the same layout after retry, with
+  three lives, the player at the start, and live enemies reset.
+- Complete level 2 to wrap to fixed level 1, then reach level 2 again. Confirm a
+  fresh procedural layout. With a debugger, check seed slots 4..6 initialize on
+  each progression, including wrap, and stay unchanged on retry.
+- Restart the console and launch SRB again. Confirm seeds initialize for the new
+  game and fixed level 1 remains unchanged; check controls and rendering.
+
 ## Flying enemies: manual regression checklist
 
 The 104 automated checks cover the existing patrol behavior, not flyers.

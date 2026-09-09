@@ -509,7 +509,13 @@ uint8_t SrbApp::getLevelColumn(uint8_t x){
     }
 }
 
-void SrbApp::startLevel(){
+void SrbApp::startLevel(bool newLevel){
+    // Retries reuse the layout; new games and progression (including wrap) reseed.
+    if (newLevel) {
+        console.state[SEED1] = tinyRandom(255);
+        console.state[SEED2] = tinyRandom(255);
+        console.state[SEED3] = tinyRandom(255);
+    }
     console.showNumber(console.state[LEVEL]);
     console.state[ANIM_TICK] = LEVEL_TITLE;
     console.consumeButtons();
@@ -522,9 +528,6 @@ void SrbApp::enterLevel(){
     console.state[YPOS] = 0;
     console.state[VELOCITY] = 0;
     console.state[ENEMY_FLAGS] = 0;
-    console.state[SEED1] = tinyRandom(255);
-    console.state[SEED2] = tinyRandom(255);
-    console.state[SEED3] = tinyRandom(255);
     
     for(uint8_t x = 0; x < console.Width; x++){
         uint8_t column = getLevelColumn(x);
@@ -572,7 +575,8 @@ bool SrbApp::move(bool right){
             for(uint8_t index = 0; index < ENEMY_COUNT; index++){
                 uint8_t data = console.state[ENEMIES + index];
                 if (!(data & ENEMY_ACTIVE)){
-                    console.state[ENEMIES + index] = ENEMY_ACTIVE | (15 << 3) | 1;
+                    console.state[ENEMIES + index] = ENEMY_ACTIVE | (15 << 3)
+                        | (meta == 2 ? 3 : 1);
                     uint8_t direction = 1 << index;
                     uint8_t flying = direction << ENEMY_COUNT;
                     console.state[ENEMY_FLAGS] &= ~(direction | flying);
@@ -819,5 +823,5 @@ void SrbApp::update() {
 
     console.state[ANIM_TICK] = (animTick + 1) % 16;
 
-    if (getLives() == 0) startLevel();
+    if (getLives() == 0) startLevel(false);
 }

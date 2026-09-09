@@ -30,6 +30,7 @@ When discussing an idea:
 - Identify important unknowns.
 - Keep exploration proportional to the size of the idea.
 - Do not turn an early idea into an implementation plan prematurely.
+- Recommended execution mode: THINK
 
 An idea may remain an Idea, move to Experiments, move directly to Todo, or be removed if it is no longer useful.
 
