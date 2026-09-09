@@ -170,7 +170,7 @@ enum stateSlot {
     ENEMIES = 12, // FOUR BYTES
 };
 
-constexpr uint8_t LEVEL_COUNT = 2;
+constexpr uint8_t LEVEL_COUNT = 16;
 
 
 
@@ -185,19 +185,6 @@ uint8_t clampU8(int16_t value, uint8_t minValue, uint8_t maxValue) {
     return (uint8_t)value;
 }
 
-// Level columns and their offsets fit in one byte; hash8 keeps 16-bit mixing.
-uint8_t triangleWave(uint8_t x, uint8_t period) {
-    if (period < 2) return 0;
-
-    uint8_t p = x % period;
-    uint8_t half = period / 2;
-
-    if (p <= half)
-        return p;
-
-    return period - p;
-}
-
 // Enkel deterministisk "slump" från x.
 // Samma x + seed ger alltid samma resultat.
 uint8_t hash8(uint16_t x, uint8_t seed) {
@@ -208,305 +195,56 @@ uint8_t hash8(uint16_t x, uint8_t seed) {
     return (uint8_t)x;
 }
 
+static uint8_t proceduralColumn(uint8_t x, uint8_t level,
+                                uint8_t seed1, uint8_t seed2, uint8_t seed3) {
+    if (x == 255) return LEVEL_END;
+    if (x >= 239) return 0xbc;
+    if (x < 16) return x >= 6 && x <= 7 ? 0x90 : 0x80;
+    if (x >= 232) return 0x80;
 
-// --------------------------------------------------
-// 1. Mask + intervall
-// Din ursprungliga idé.
-// --------------------------------------------------
+    uint8_t tier = (level - 1) / 5;
+    if (tier > 3) tier = 3;
+    uint8_t intensity = 5 + tier + (x >> 6);
+    uint8_t density = intensity > 8 ? 8 : intensity;
+    uint8_t cell = x >> 4;
+    uint8_t pos = x & 15;
+    uint8_t a = hash8(cell, seed1);
+    uint8_t b = hash8(cell, seed2);
+    uint8_t col = 0x80;
 
-bool algMask(
-    uint16_t x,
-    uint16_t offset,
-    uint8_t interval,
-    uint8_t mask
-) {
-    if (x < offset || interval == 0)
-        return false;
-
-    uint16_t px = x - offset;
-
-    if (px % interval != 0)
-        return false;
-
-    uint8_t index = (px / interval) & 7;
-
-    return (mask >> index) & 1;
-}
-
-
-// --------------------------------------------------
-// 2. Intervall som minskar med x
-// Features kommer tätare längre fram.
-// --------------------------------------------------
-
-bool algProgressive(
-    uint8_t x,
-    uint8_t offset,
-    uint8_t startInterval,
-    uint8_t minInterval,
-    uint8_t rate
-) {
-    if (x < offset || rate == 0)
-        return false;
-
-    uint8_t px = x - offset;
-
-    uint8_t reduction = px / rate;
-
-    uint8_t interval =
-        reduction >= startInterval - minInterval
-        ? minInterval
-        : startInterval - reduction;
-
-    return px % interval == 0;
-}
-
-
-// --------------------------------------------------
-// 3. Svårighet i steg
-// Exempel: var 64:e kolumn blir intervallet mindre.
-// --------------------------------------------------
-
-bool algSteps(
-    uint16_t x,
-    uint16_t offset,
-    uint8_t startInterval,
-    uint8_t minInterval,
-    uint8_t sectionWidth
-) {
-    if (x < offset || sectionWidth == 0)
-        return false;
-
-    uint16_t px = x - offset;
-    uint8_t section = px / sectionWidth;
-
-    uint8_t interval =
-        section >= startInterval - minInterval
-        ? minInterval
-        : startInterval - section;
-
-    return px % interval == 0;
-}
-
-
-// --------------------------------------------------
-// 4. Vågrörelse
-// Tätare -> glesare -> tätare.
-// --------------------------------------------------
-
-bool algWave(
-    uint8_t x,
-    uint8_t offset,
-    uint8_t baseInterval,
-    uint8_t amplitude,
-    uint8_t period
-) {
-    if (x < offset || period < 2)
-        return false;
-
-    uint8_t px = x - offset;
-
-    uint8_t wave = triangleWave(px, period);
-    uint8_t half = period / 2;
-
-    uint16_t delta = 0;
-
-    if (half > 0)
-        delta = (static_cast<uint16_t>(wave) * amplitude) / half;
-
-    uint8_t interval = baseInterval + delta;
-
-    if (interval < 1)
-        interval = 1;
-
-    return px % interval == 0;
-}
-
-
-// --------------------------------------------------
-// 5. Deterministisk slump
-// threshold 0..255.
-// Högre threshold = oftare.
-// --------------------------------------------------
-
-bool algRandom(
-    uint16_t x,
-    uint16_t offset,
-    uint8_t seed,
-    uint8_t threshold
-) {
-    if (x < offset)
-        return false;
-
-    return hash8(x - offset, seed) < threshold;
-}
-
-
-// --------------------------------------------------
-// 6. Slump som blir vanligare längre fram
-// --------------------------------------------------
-
-bool algRandomProgressive(
-    uint8_t x,
-    uint8_t offset,
-    uint8_t seed,
-    uint8_t startThreshold,
-    uint8_t maxThreshold,
-    uint8_t rate
-) {
-    if (x < offset || rate == 0)
-        return false;
-
-    uint8_t px = x - offset;
-
-    uint16_t threshold =
-        startThreshold + px / rate;
-
-    if (threshold > maxThreshold)
-        threshold = maxThreshold;
-
-    return hash8(px, seed) < threshold;
-}
-
-
-// --------------------------------------------------
-// 7. Repeating run
-// Exempel: 4 kolumner aktivt var 24:e kolumn.
-// Bra för plattformar.
-// --------------------------------------------------
-
-bool algRun(
-    uint8_t x,
-    uint8_t offset,
-    uint8_t period,
-    uint8_t length
-) {
-    if (x < offset || period == 0)
-        return false;
-
-    const uint8_t px = x - offset;
-    return (px % period) < length;
-}
-
-
-// --------------------------------------------------
-// 8. Run som blir längre längre fram
-// --------------------------------------------------
-
-bool algGrowingRun(
-    uint16_t x,
-    uint16_t offset,
-    uint8_t period,
-    uint8_t startLength,
-    uint8_t maxLength,
-    uint16_t rate
-) {
-    if (x < offset || period == 0 || rate == 0)
-        return false;
-
-    uint16_t px = x - offset;
-
-    uint8_t length =
-        startLength + px / rate;
-
-    if (length > maxLength)
-        length = maxLength;
-
-    return (px % period) < length;
-}
-
-
-
-
-uint8_t SrbApp::getLevelColumn(uint8_t x){
-    switch(console.state[LEVEL]){
-        
-        default:
-        case 1: {
-
-            if (x >= sizeof(level1) + 16) return LEVEL_END;
-            if (x >= sizeof(level1)) return B10111100;
-            return pgm_read_byte(&level1[x]);
-
+    if (level % 5 == 0) {
+        uint8_t p = x & 7;
+        uint8_t h = 5 + (hash8(x >> 3, seed1) & 1);
+        uint8_t length = 7 - ((hash8(x >> 3, seed2) & 7) < density);
+        col = p < length ? (1 << h) : 0;
+    } else if (!(level & 1)) {
+        if ((a & 7) < density && pos >= 4
+            && pos < 5 + ((a >> 7) || intensity > 8)) col = 0;
+        if ((b & 7) < density && pos >= 9 && pos <= 10)
+            col = (b & 0x80) || intensity > 9 ? 0xe0 : 0xc0;
+        if (pos <= 1) col |= 0x10;
+    } else {
+        if ((a & 7) < density) {
+            uint8_t pattern = b & 3;
+            if (intensity > 8 && pattern == 2) pattern = 3;
+            if ((pattern == 0 || pattern == 3) && pos >= 4 && pos <= 5) col = 0;
+            if ((pattern == 1 || pattern == 3) && pos >= 9 && pos <= 10) col = 0xc0;
+            if (pattern == 2 && pos >= 4 && pos <= 6) col |= 0x10;
         }
-
-        case 2: {
-
-            if (x >= 255) return LEVEL_END;
-            if (x >= 239) return B10111100;
-            if (x == 238) return B10000000;
-
-            uint8_t col = B10000000;
-
-            // Hål blir tätare längre fram
-            if (algProgressive(
-                x, 
-                20, 
-                28, 
-                8, 
-                45  + console.state[SEED3] % 9
-            ))
-                col &= ~B10000000;
-
-            // Plattformar i återkommande block
-            if (algRun(
-                x, 
-                16, 
-                20  + console.state[SEED2] % 7, 
-                5
-            ))
-                col |= 1 << 4;
-
-            // Hög plattform i vågor
-            if (algWave(
-                x, 
-                39, 
-                22, 
-                8, 
-                54 + console.state[SEED1] % 21
-            ))
-                col |= 1 << 2;
-
-            // Lite deterministisk extra variation
-            if (algRandomProgressive(
-                x,
-                100 + console.state[SEED2] % 5,
-                console.state[SEED1], //console.state.levelSeed,
-                5,
-                45,
-                5 + console.state[SEED3] % 3
-            )) {
-                col |= B11000000;
-            }
-
-            // Lite deterministisk extra variation
-            if (algRandomProgressive(
-                x,
-                90 + console.state[SEED3] % 5,
-                console.state[SEED2], //console.state.levelSeed,
-                5,
-                45,
-                6 + console.state[SEED1] % 5
-            )) {
-                col |= B11100000;
-            }
-
-            if (algRandomProgressive(
-                x,
-                22 + console.state[SEED1] % 5,
-                console.state[SEED3],
-                5,
-                38,
-                3 + console.state[SEED2] % 3U
-            )) {
-                col |= B00000001;
-            }
-
-            return col;
-
-        }
-
+        if (pos <= 1) col |= 0x10;
     }
+    if (col && (hash8(x, seed3) & 63) < 2 + tier + (x >> 6)) col |= 1;
+    return col;
+}
+
+uint8_t SrbApp::getLevelColumn(uint8_t x) {
+    if (console.state[LEVEL] == 1) {
+        if (x >= sizeof(level1) + 16) return LEVEL_END;
+        if (x >= sizeof(level1)) return B10111100;
+        return pgm_read_byte(&level1[x]);
+    }
+    return proceduralColumn(x, console.state[LEVEL], console.state[SEED1],
+                            console.state[SEED2], console.state[SEED3]);
 }
 
 void SrbApp::startLevel(bool newLevel){
@@ -783,7 +521,7 @@ uint8_t SrbApp::getLives(){
 }
 
 void SrbApp::begin() {
-    console.state[LEVEL] = 1;
+    console.state[LEVEL] = 15;
     startLevel();
 }
 

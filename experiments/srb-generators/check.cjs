@@ -11,25 +11,32 @@ function hash8(x, seed) {
 function column(x, level, s1, s2, s3) {
     if (x === 255) return 255;
     if (x >= 239) return 0xbc;
-    if (x < 16 || x >= 232) return 0x80;
+    if (x < 16) return x >= 6 && x <= 7 ? 0x90 : 0x80;
+    if (x >= 232) return 0x80;
     const tier = Math.min(3, Math.floor((level - 1) / 5));
-    const density = 2 + tier + (x >> 6), cell = x >> 4, pos = x & 15;
-    const a = hash8(cell, s1), b = hash8(cell, s2), c = hash8(cell, s3);
+    const intensity = 5 + tier + (x >> 6), density = Math.min(8, intensity);
+    const cell = x >> 4, pos = x & 15;
+    const a = hash8(cell, s1), b = hash8(cell, s2);
     let col = 0x80;
     if (level % 5 === 0) {
         const length = 7 - ((hash8(x >> 3, s2) & 7) < density);
         col = (x & 7) < length ? 1 << (5 + (hash8(x >> 3, s1) & 1)) : 0;
     } else if (!(level & 1)) {
-        if ((a & 7) < density && pos >= 4 && pos < 5 + (a >> 7)) col = 0;
-        if ((b & 7) < density && pos >= 9 && pos <= 10) col = b & 128 ? 0xe0 : 0xc0;
-        if ((c & 7) < density && pos <= 1) col |= 0x10;
-    } else if ((a & 7) < density) {
-        const pattern = b & 3;
-        if ((pattern === 0 || pattern === 3) && pos >= 4 && pos <= 5) col = 0;
-        if ((pattern === 1 || pattern === 3) && pos >= 9 && pos <= 10) col = 0xc0;
-        if (pattern === 2 && pos >= 4 && pos <= 6) col |= 0x10;
+        if ((a & 7) < density && pos >= 4 && pos < 5 + ((a >> 7) || intensity > 8)) col = 0;
+        if ((b & 7) < density && pos >= 9 && pos <= 10)
+            col = (b & 128) || intensity > 9 ? 0xe0 : 0xc0;
+        if (pos <= 1) col |= 0x10;
+    } else {
+        if ((a & 7) < density) {
+            let pattern = b & 3;
+            if (intensity > 8 && pattern === 2) pattern = 3;
+            if ((pattern === 0 || pattern === 3) && pos >= 4 && pos <= 5) col = 0;
+            if ((pattern === 1 || pattern === 3) && pos >= 9 && pos <= 10) col = 0xc0;
+            if (pattern === 2 && pos >= 4 && pos <= 6) col |= 0x10;
+        }
+        if (pos <= 1) col |= 0x10;
     }
-    if (col && (hash8(x, s3) & 63) < density) col |= 1;
+    if (col && (hash8(x, s3) & 63) < 2 + tier + (x >> 6)) col |= 1;
     return col;
 }
 // State is world x, unsigned 4-bit-fraction y, signed velocity, tick modulo 4.
@@ -98,13 +105,14 @@ function transitions() {
     const variants = [];
     // Superset of every independent/pattern cell: optional 1/2-wide hole,
     // optional 1/2-high step, optional raised platform at either approved zone.
-    for (const gap of [0,1,2]) for (const height of [0,1,2]) for (const platform of [0,1,2]) {
+    for (const gap of [0,1,2]) for (const height of [0,1,2]) for (const platform of [0,1,2,3]) {
         const cell = Array(16).fill(128);
         cell.fill(0,4,4+gap);
         if (height) cell.fill(height===1 ? 192:224,9,11);
-        if (platform) for (let p = platform===1 ? 0:4; p < (platform===1 ? 2:7); ++p) cell[p] |= 16;
+        if (platform & 1) for (let p=0; p<2; ++p) cell[p] |= 16;
+        if (platform & 2) for (let p=4; p<7; ++p) cell[p] |= 16;
         // The pattern platform never coexists with its hole or step.
-        if (platform===2 && (gap || height)) continue;
+        if ((platform & 2) && (gap || height)) continue;
         variants.push(cell);
     }
     let checks = 0;
@@ -120,7 +128,8 @@ function transitions() {
         checks++;
     }
     for (const cell of variants) for (let t=0;t<4;++t) {
-        const entry = [...Array(16).fill(128),...cell,...Array(16).fill(128)];
+        const start = Array(16).fill(128); start[6]=start[7]=0x90;
+        const entry = [...start,...cell,...Array(16).fill(128)];
         assert.ok(route(entry,[4,0,0,t],18,false,96),'ground entry');
         const ending = Array(256).fill(128);
         ending.splice(224,8,...cell.slice(0,8));
@@ -130,6 +139,7 @@ function transitions() {
     }
     for (const h of [5,6]) for (const gap of [1,2]) for(let t=0;t<4;++t) {
         const entry=Array(48).fill(128);
+        entry[6]=entry[7]=0x90;
         entry.fill(0,16,32); entry.fill(1<<h,16,24-gap);
         assert.ok(route(entry,[4,0,0,t],18,false,(h-1)*16),'bottomless entry');
         const ending=Array(256).fill(128);
@@ -152,9 +162,15 @@ if (require.main === module) {
             const seeds = [seed & 255, (seed * 73 + 19) & 255, (seed * 151 + 97) & 255];
             const raw = Array.from({length:256}, (_,x) => column(x, level, ...seeds));
             for (let x = 255; x >= 0; --x) assert.equal(column(x, level, ...seeds), raw[x]);
-            assert.deepEqual(raw.slice(0,16), Array(16).fill(0x80));
+            const start = Array(16).fill(0x80); start[6]=start[7]=0x90;
+            assert.deepEqual(raw.slice(0,16), start);
             assert.equal(raw[238], 0x80); assert.equal(raw[255], 255);
             assert.deepEqual(raw.slice(239,255), Array(16).fill(0xbc));
+            let plain = 0;
+            for (const col of raw) {
+                plain = (col & 0xfc) === 0x80 ? plain + 1 : 0;
+                assert.ok(plain < 16, `Featureless run level=${level} seeds=${seeds}`);
+            }
             const cols = raw.map(c => c & 0xfc);
             const found = route(cols, [4,0,0,0], 244, seed === 0);
             assert.ok(found, `Unreachable level=${level} seeds=${seeds}`);

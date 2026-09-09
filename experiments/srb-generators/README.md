@@ -1,8 +1,9 @@
 # SRB generator experiment — 2026-09-09
 
 Result: three deterministic terrain generators plus 16-level progression fit
-without new persistent state. Keep this prototype outside production until the
-terrain/progression Todo is implemented. No playable source was changed.
+without new persistent state. The terrain/progression implementation was
+integrated into production on 2026-09-09; `generator.h` remains the prototype
+reference used to establish the rules below.
 
 ## Movement bounds and safe rules
 
@@ -27,11 +28,12 @@ other terrain. Passing bounds do not mean a layout is forgiving to play.
 Grounded generators use 16-column cells with these zero-based offsets:
 
 - Independent features: a hole at 4 (width 1–2), a step at 9–10
-  (height 1–2), and an optional row-4 platform at 0–1. Each decision uses
-  its own seed. Reserved spaces prevent ceilings overlapping gap/step jumps.
+  (height 1–2), and a row-4 landmark at 0–1. Hole and step decisions use
+  separate seeds. Reserved spaces prevent ceilings overlapping gap/step jumps.
 - Pattern features: choose a two-column hole at 4–5, a one-row step at
   9–10, a row-4 platform at 4–6, or the hole plus step. Do not combine
-  the pattern platform with other features.
+  the pattern platform with other features. The row-4 landmark at 0–1 is
+  present in every pattern cell as a scrolling reference.
 - Bottomless: 8-column cells, with row-5/6 platforms occupying the first
   six or seven columns. The trailing one or two columns are empty.
 
@@ -42,13 +44,15 @@ combinations. This lets successful cell crossings compose without requiring
 an airborne arrival, damage, or enemy support. Both fixed boundary transitions
 are checked separately. Do not move features or widen gaps without rechecking.
 
-Columns 0–15 are ground only. Columns 232–238 are a ground-only exit apron,
-so the last cell is truncated safely. The required ending is unchanged:
+Columns 0–15 remain grounded and enemy-free, with a row-4 landmark at 6–7.
+Together with the cell landmarks, this limits ground-only runs to 14 columns.
+Columns 232–238 are a ground-only exit apron, so the last cell is truncated
+safely. The required ending is unchanged:
 238 = `0x80`, 239–254 = `0xbc`, 255 = `0xff`. Row 6 is a passage below
 the ending's row-2–5 blocks; the game triggers completion when column 255
 would scroll in (player world x = 243), not when the player reaches x = 255.
 
-## Initial pacing
+## Current pacing
 
 `tier = min((level - 1) / 5, 3)`, using integer division. Preserve fixed
 level 1. Every fifth level is bottomless; other evens use independent
@@ -58,18 +62,22 @@ Activation threshold out of eight:
 
 | Tier / levels | x 16–63 | x 64–127 | x 128–191 | x 192–231 |
 | --- | --- | --- | --- | --- |
-| 1 / 1–5 | 2 | 3 | 4 | 5 |
-| 2 / 6–10 | 3 | 4 | 5 | 6 |
-| 3 / 11–15 | 4 | 5 | 6 | 7 |
-| 4 / 16+ | 5 | 6 | 7 | 8 |
+| 1 / 1–5 | 5 | 6 | 7 | 8 |
+| 2 / 6–10 | 6 | 7 | 8 | 8 |
+| 3 / 11–15 | 7 | 8 | 8 | 8 |
+| 4 / 16+ | 8 | 8 | 8 | 8 |
 
 Use this threshold for each independent feature or whole pattern. On
 bottomless levels it selects two-column gaps instead of one-column gaps.
-The prototype's initial enemy threshold is the same number out of 64 per
-nonempty column (nominal 3.125–12.5%), with no spawns in the start or exit
-apron. Hash decisions are correlated deterministic samples, not a guarantee
-of exact per-level percentages. Enemy type/eligibility and retry persistence
-remain the separate existing Todos.
+The uncapped intensity continues above eight: values above eight force
+two-column independent gaps and replace the pattern generator's raised-platform
+choice with hole-plus-step; values above nine force two-row independent steps.
+This preserves progression after activation reaches 8/8.
+
+Enemy placement retains the original `2 + tier + (x >> 6)` threshold out of
+64 per nonempty column, with no spawns in the start or exit apron. Hash
+decisions are correlated deterministic samples, not a guarantee of exact
+per-level percentages. Enemy type and eligibility remain a separate Todo.
 
 ## Verification and resource results
 
@@ -77,7 +85,7 @@ remain the separate existing Todos.
   2, 3, 5, 6, 7, 10, 11, 12, 15, 16, 17, 20, 254, 255. Seeds are
   `(s, 73*s+19, 151*s+97) mod 256`, covering each byte value in each slot.
   This samples the seed space; it does not enumerate all 256 cubed triples.
-- 1,692 cell/phase and fixed-boundary checks, including all 19 grounded
+- 1,856 cell/phase and fixed-boundary checks, including all 20 grounded
   variants paired with each other, and both bottomless heights/gap widths.
 - Forward/reverse column lookup agrees; every sampled start/end is exact.
 - 14 sample routes replayed through the real AVR `doJump`, `doGravity`,
@@ -88,24 +96,21 @@ remain the separate existing Todos.
 
 | Build | Flash | Static SRAM | Flash remaining |
 | --- | --- | --- | --- |
-| Current working-tree baseline | 7,676 B | 57 B | 516 B |
-| Replacement prototype + 16-level count | 7,828 B | 57 B | 364 B |
-| Difference | +152 B | 0 B | -152 B |
+| Integrated generator before intensity tuning | 7,838 B | 57 B | 354 B |
+| Tuned generator | 7,906 B | 57 B | 286 B |
+| Difference | +68 B | 0 B | -68 B |
 
 Both builds use `pio run -e attiny85`, the same project options and installed
-AVR compiler. The older backlog baseline was 7,670 B; the current uncommitted
-source builds six bytes larger. Prototype replaces old generation helpers
-and the procedural body rather than retaining both. It adds no persistent
-globals. SRAM figures are linker static allocations, not peak stack usage.
-The 364 B remaining must also accommodate the separate enemy/retry Todos;
-their combined final size is not established by this experiment.
+AVR compiler. The tuning adds no persistent globals. SRAM figures are linker
+static allocations, not peak stack usage. The 286 B remaining must also
+accommodate the separate enemy Todo.
 
 The replay disables enemies between ticks. It proves terrain can be crossed
 without damage/recovery or stomps for support, **not** that every live enemy
-arrangement can be avoided. Enemy-inclusive damage-free play, feel, rendering,
-launcher navigation and retry behavior have not been playtested here. Validate
-these when integrating the ready Todos; do not claim full gameplay safety
-from the terrain search alone.
+arrangement can be avoided. The initial integration was manually reported
+playable but too sparse; the denser pacing and recurring landmarks still need
+a gameplay pass. Enemy-inclusive damage-free play also remains unproven; do
+not claim full gameplay safety from the terrain search alone.
 
 ## Reproduce
 
@@ -120,7 +125,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File experiments/srb-generators/r
 ```
 
 `prepare.cjs` copies current source/config into ignored `.pio/srb-experiment/`
-and substitutes `generator.h`. The host model is in `check.cjs`; generated
-route witnesses, results, AVR replay source, firmware and its map stay in that
-ignored directory. The production source and map are never replaced by the
-prototype. No new dependencies or general simulator infrastructure are needed.
+so the replay exercises the integrated generator. The host model is in
+`check.cjs`; generated route witnesses, results, AVR replay source, firmware
+and its map stay in that ignored directory. No new dependencies or general
+simulator infrastructure are needed.

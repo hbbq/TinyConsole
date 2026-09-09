@@ -257,6 +257,18 @@ static void timingRenderingAndRestart() {
     CHECK(console.state[DIRECTIONS] == 0);
     CHECK(console.state[TICK] == 0);
 
+    reset();
+    console.state[LEVEL] = 15;
+    console.state[X] = 243;
+    CHECK(game.move(true));
+    CHECK(console.state[LEVEL] == 16);
+
+    reset();
+    console.state[LEVEL] = 16;
+    console.state[X] = 243;
+    CHECK(game.move(true));
+    CHECK(console.state[LEVEL] == 1);
+
     console.state[DIRECTIONS] = 0x0f;
     game.begin();
     tick(1000);

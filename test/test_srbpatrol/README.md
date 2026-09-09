@@ -11,7 +11,8 @@ under `avr-gdb`'s instruction simulator. Only Arduino time and ADC input are
 stubbed. It checks wall/enemy turns, independent direction bits, both screen
 exits, ledge descent, bottomless gaps, enemy support and falling, scrolling,
 spawn-slot reuse, damage, stomps, 16-tick cadence, framebuffer rendering,
-buttons, restart, level transitions, and launcher navigation into SRB.
+buttons, restart, the 15→16 and 16→1 progression boundaries, and launcher
+navigation into SRB.
 
 The simulator does not emulate the ATtiny85's 8 KB relative-call wrap, so the
 test executable uses the compatible ATmega2560 instruction target. Run
@@ -21,7 +22,7 @@ playthrough. Test artifacts go under the ignored `.pio/test_srbpatrol/` director
 
 ## Retry layouts: manual regression checklist
 
-The existing 104 checks cover restart resets and level transitions. Seed lifetime
+The existing 108 checks cover restart resets and level transitions. Seed lifetime
 and deterministic column lookup were reviewed in code. The user reported successful
 manual retry/progression playtesting on 2026-09-09. Retain this checklist for future
 Wokwi/hardware regression checks:
@@ -29,15 +30,17 @@ Wokwi/hardware regression checks:
 - On procedural level 2, note terrain and enemy spawn locations, scroll backward
   and forward, then lose all lives. Confirm the same layout after retry, with
   three lives, the player at the start, and live enemies reset.
-- Complete level 2 to wrap to fixed level 1, then reach level 2 again. Confirm a
-  fresh procedural layout. With a debugger, check seed slots 4..6 initialize on
-  each progression, including wrap, and stay unchanged on retry.
+- Complete procedural levels through level 16 and wrap to fixed level 1, then
+  reach level 2 again. Confirm a fresh procedural layout. With a debugger, check
+  seed slots 4..6 initialize on each progression, including wrap, and stay
+  unchanged on retry. Check independent terrain on even levels, pattern terrain
+  on odd levels, and bottomless terrain on levels 5, 10, and 15.
 - Restart the console and launch SRB again. Confirm seeds initialize for the new
   game and fixed level 1 remains unchanged; check controls and rendering.
 
 ## Flying enemies: manual regression checklist
 
-The 104 automated checks cover the existing patrol behavior, not flyers.
+The 108 automated checks cover the existing patrol behavior, not flyers.
 The user manually tested flying enemies and reported good results on 2026-09-09.
 For a Wokwi/hardware check, temporarily use metadata `10` in a level column
 (for example, `0b00000010` for a terrain-free flying spawn). Restore the level
