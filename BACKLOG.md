@@ -4,6 +4,12 @@
 
 - **SRB hand-authored milestone levels:** Consider keeping the current Super Mario Bros.-inspired level 1 in the personal version and adding fixed, hand-authored levels at selected points among procedural levels. Use these for deliberate pacing, memorable challenges, or introducing mechanics. Revisit their placement, themes, and whether to use original designs or tributes; the current level's suitability for distribution remains unresolved.
 
+- **SRB on-rails level:** Consider a forced-forward level where the view advances on a steady cadence and the player focuses on jumping, landing, and reacting rather than choosing when to scroll. It could serve as a short high-pressure milestone or chase sequence. Explore a readable warning before forced movement begins, suitable speed and difficulty, whether limited braking is useful, and how retries preserve fairness.
+
+- **SRB final boss level:** Consider an environmental boss that fits the one-pixel presentation: a staged arena or chase where terrain and existing enemy types form recognizable attack waves, followed by brief openings to hit a vulnerable point. Explore how the player damages it, how to communicate phases and progress without extra UI, and whether the encounter can reuse existing state and rendering within the flash/SRAM budget.
+
+- **SRB puzzle level:** Consider a compact hand-authored level built around route planning and enemy interactions, such as preserving and timing a patrol or flyer so its stomp bounce helps reach an otherwise inaccessible exit. Explore how to make the intended interaction discoverable, prevent unwinnable states or provide a quick reset, and keep the solution readable on the scrolling 16x8 display.
+
 ## Experiments
 
 ## Todo
