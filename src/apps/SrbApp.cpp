@@ -1,5 +1,10 @@
 #include "SrbApp.h"
 #include "TinyRandom.h"
+#include <avr/eeprom.h>
+
+namespace {
+uint8_t EEMEM savedProgress[5];
+}
 
 const uint8_t level1[] PROGMEM = {
     0b10000000,
@@ -146,6 +151,7 @@ constexpr uint8_t LEVEL_END = 0b11111111;
 
 constexpr uint8_t PLAYER_COLUMN = 4;
 constexpr uint8_t LEVEL_TITLE = 0x80; // ANIM_TICK is otherwise 0..15.
+constexpr uint8_t RESUME_MENU = 0x81;
 constexpr uint8_t ENEMY_COUNT = 4;
 constexpr uint8_t ENEMY_ACTIVE = 0x80;
 constexpr uint8_t ENEMY_X_MASK = 0x78;
@@ -171,6 +177,36 @@ enum stateSlot {
 };
 
 constexpr uint8_t LEVEL_COUNT = 16;
+
+static uint8_t savedChecksum(const uint8_t* data) {
+    return data[0] ^ data[1] ^ data[2] ^ data[3];
+}
+
+bool SrbApp::hasSavedProgress(TinyConsoleGameApi& console) {
+    uint8_t level = eeprom_read_byte(savedProgress);
+    uint8_t check = level;
+    for (uint8_t i = 0; i < 3; i++) {
+        console.state[SEED1 + i] = eeprom_read_byte(savedProgress + i + 1);
+        check ^= console.state[SEED1 + i];
+    }
+    console.state[LEVEL] = level;
+    if (static_cast<uint8_t>(level - 2) >= LEVEL_COUNT - 1
+        || check != eeprom_read_byte(savedProgress + 4)) return false;
+    console.state[ANIM_TICK] = RESUME_MENU;
+    return true;
+}
+
+void SrbApp::saveProgress() {
+    // Level is the commit byte: invalidate it, write seeds/checksum, then commit.
+    eeprom_write_byte(savedProgress, 0);
+    eeprom_write_block(&console.state[SEED1], savedProgress + 1, 3);
+    eeprom_write_byte(savedProgress + 4, savedChecksum(&console.state[SEED1]));
+    eeprom_write_byte(savedProgress, console.state[LEVEL]);
+}
+
+void SrbApp::clearSavedProgress() {
+    eeprom_write_byte(savedProgress, 0);
+}
 
 
 
@@ -290,9 +326,10 @@ bool SrbApp::move(bool right){
         if (console.getPixel(PLAYER_COLUMN + 1, ypos)) return false;
         uint8_t column = getLevelColumn(xpos - PLAYER_COLUMN + console.Width);
         if (column == LEVEL_END){
-            console.state[LEVEL] = console.state[LEVEL] >= LEVEL_COUNT
-                ? 1 : console.state[LEVEL] + 1;
+            if (++console.state[LEVEL] > LEVEL_COUNT) console.state[LEVEL] = 1;
             startLevel();
+            if (console.state[LEVEL] > 1) saveProgress();
+            else clearSavedProgress();
             return true;
         }
         console.shiftLeft();
@@ -521,11 +558,27 @@ uint8_t SrbApp::getLives(){
 }
 
 void SrbApp::begin() {
-    console.state[LEVEL] = 15;
+    if (console.state[ANIM_TICK] == RESUME_MENU) {
+        // The saved level is the prompt: Up continues it, Down restarts at level 1.
+        console.showNumber(console.state[LEVEL]);
+        return;
+    }
+    console.state[LEVEL] = 1;
     startLevel();
 }
 
 void SrbApp::update() {
+    if (console.state[ANIM_TICK] == RESUME_MENU) {
+        uint8_t buttons = console.readButtons();
+        if (buttons & BTN_UP) {
+            startLevel(false);
+        } else if (buttons & BTN_DOWN) {
+            clearSavedProgress();
+            console.state[LEVEL] = 1;
+            startLevel();
+        }
+        return;
+    }
     // Keep presenting the title without advancing gameplay or queuing presses.
     if (console.state[ANIM_TICK] == LEVEL_TITLE) {
         if (console.tickDue(1000)) enterLevel();

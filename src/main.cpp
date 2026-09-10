@@ -2,6 +2,7 @@
 #include "TinyRandom.h"
 #include "hardware/TinyConsole.h"
 #include "apps/GameIcons.h"
+#include "apps/SrbApp.h"
 #include "appConf.h"
 
 TinyConsole console;
@@ -19,6 +20,7 @@ uint8_t selected = gameCount - 1;
 uint8_t scrollStep = 0;
 LauncherPhase phase = LauncherPhase::Ready;
 uint16_t seed = 0;
+bool srbSaved = false;
 
 uint8_t previousGame(uint8_t game) {
   return game == 0 ? gameCount - 1 : game - 1;
@@ -26,10 +28,14 @@ uint8_t previousGame(uint8_t game) {
 uint8_t nextGame(uint8_t game) {
   return game + 1 == gameCount ? 0 : game + 1;
 }
+uint8_t __attribute__((noinline)) launcherColumn(uint8_t game, uint8_t column) {
+  uint8_t result = gameIconColumn(static_cast<GameId>(game), column);
+  if(srbSaved && game == static_cast<uint8_t>(GameId::Srb) && column == 3) result |= 1 << 6;
+  return result;
+}
 void drawIcon(uint8_t game, uint8_t x) {
   for(uint8_t column = 0; column < 4; column++) {
-    console.insertColumn(x + column,
-        gameIconColumn(static_cast<GameId>(game), column) << iconY);
+    console.insertColumn(x + column, launcherColumn(game, column));
   }
 }
 void drawMarker() {
@@ -77,8 +83,7 @@ void updateLauncher() {
     uint8_t incoming = left ? nextGame(nextGame(selected))
                             : previousGame(previousGame(selected));
     uint8_t column = scrollStep < 4
-        ? gameIconColumn(static_cast<GameId>(incoming),
-                         left ? scrollStep : 3 - scrollStep) << iconY
+        ? launcherColumn(incoming, left ? scrollStep : 3 - scrollStep)
         : 0;
     console.insertColumn(left ? console.Width - 1 : 0, column);
     drawMarker();
@@ -103,6 +108,7 @@ void updateLauncher() {
 
 void setup() {
   console.begin();
+  srbSaved = SrbApp::hasSavedProgress(console);
   console.setBrightness(0);
   drawLauncher();
   console.updateDisplay();
