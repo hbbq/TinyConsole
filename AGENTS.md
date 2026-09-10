@@ -6,16 +6,15 @@
 - `src/apps/` contains games, `Game` dispatch, `GameFactory`, and icon data. Follow the existing `NameApp.h`/`NameApp.cpp` pattern for new games.
 - `src/hardware/` contains the console driver and shared game API; `src/text/` provides number rendering. `src/TinyRandom.*` supplies random utilities.
 - `chips/` holds the custom Wokwi button chip source, definition, and compiled WebAssembly. `diagram.json` defines simulator wiring; `wokwi.toml` selects firmware artifacts.
-- `include/`, `lib/`, and `test/` currently contain placeholder documentation for shared headers, private libraries, and tests.
+- `include/`, `lib/`, and `test/` contain shared headers, private libraries, and test/support code.
 
 ## Build, Test, and Development Commands
 
 Run commands from the repository root with PlatformIO installed:
 
-- `pio run -e attiny85`: compile the Arduino firmware and report flash/RAM usage.
+- `pio run -e attiny85`: compile the Arduino firmware and report flash/RAM usage. This is the normal required verification for implementation changes.
 - `pio run -e attiny85 -t clean`: remove generated build output before rebuilding.
 - `pio run -e attiny85 -t upload`: upload to hardware after configuring a compatible programmer and connection.
-- `pio test -e attiny85`: run PlatformIO tests once test suites exist; currently there are none.
 
 For local simulation, build first, then launch the project through the Wokwi VS Code extension. Configuration points to `.pio/build/attiny85/firmware.hex` and `firmware.elf`.
 
@@ -47,7 +46,11 @@ Game-specific technical documentation lives under `docs/`. When an implementatio
 
 ## Testing Guidelines
 
-No test framework is explicitly configured and no coverage threshold exists. Place future suites under `test/test_<feature>/`. For changes, build and exercise affected games in simulation or on hardware, checking launcher navigation, button handling, rendering, and restart behavior. Review memory usage after firmware changes.
+For normal development and agent-driven implementation, verify changes with `pio run -e attiny85` and report flash/RAM usage.
+
+Do not run the AVR-GDB regression suite under `test/test_srbpatrol` (including `test/test_srbpatrol/run.ps1`) unless the user explicitly requests it. The suite is slow and is not part of the normal implementation or verification workflow.
+
+Interactive gameplay, rendering, controls, and other behavior that benefits from end-to-end checking may be verified manually in Wokwi or on physical hardware when appropriate. There is no coverage threshold or requirement to run the AVR-GDB suite before opening a PR.
 
 ## Commit & Pull Request Guidelines
 
