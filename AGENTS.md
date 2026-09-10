@@ -41,6 +41,10 @@ Keep implementations small and pragmatic.
 
 Do not introduce abstractions, frameworks, or generalized infrastructure unless they solve a concrete current need. Prefer existing project patterns over architectural improvements for their own sake.
 
+## Documentation
+
+Game-specific technical documentation lives under `docs/`. When an implementation change affects documented gameplay behavior, update the relevant documentation in the same change. The current implementation is the source of truth. The `BACKLOG.md` Done section may provide historical context, but should not normally be required for future implementation tasks.
+
 ## Testing Guidelines
 
 No test framework is explicitly configured and no coverage threshold exists. Place future suites under `test/test_<feature>/`. For changes, build and exercise affected games in simulation or on hardware, checking launcher navigation, button handling, rendering, and restart behavior. Review memory usage after firmware changes.
