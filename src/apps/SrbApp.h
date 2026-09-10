@@ -10,6 +10,8 @@ public:
     void begin();
     void update();
 
+    static bool hasSavedProgress(TinyConsoleGameApi& console);
+
     uint8_t getLevelColumn(uint8_t x);
 
     void startLevel(bool newLevel = true);
@@ -25,6 +27,8 @@ public:
     void drawLives(uint8_t lives);
 
 private:
+    void saveProgress();
+    void clearSavedProgress();
     void enterLevel();
     bool enemyBlocked(uint8_t x, uint8_t y) const;
     void checkEnemyCollision(uint8_t index, bool hurtPlayer);
