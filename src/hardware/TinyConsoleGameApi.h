@@ -8,6 +8,9 @@
 
 class TinyConsoleGameApi {
 public:
+    constexpr TinyConsoleGameApi()
+        : state{}, accumulatedButtons(0), lastTick(0), screen{} {}
+
     void update();
 
     bool tickDue(uint16_t intervalMs);

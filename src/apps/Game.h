@@ -17,7 +17,7 @@ constexpr uint8_t gameCount = static_cast<uint8_t>(GameId::Count);
 
 class Game {
 public:
-    Game(TinyConsoleGameApi& console, GameId id)
+    constexpr Game(TinyConsoleGameApi& console, GameId id)
         : console(&console), id(id) {}
 
     void begin();

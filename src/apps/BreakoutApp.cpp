@@ -5,6 +5,7 @@ constexpr int playerSize = 7;
 constexpr int playerPad = 3; // ((playerSize - 1) / 2);
 
 constexpr uint8_t ballYScale = 16;
+constexpr uint8_t ballYShift = 4;
 
 enum StateSlot{
     BALLX_PLAYERY_BALLSX = 0,
@@ -47,7 +48,7 @@ void BreakoutApp::moveBall(){
         ballSX = -1;
         nextX = ballX + ballSX;
     }else if(nextX <= 0){
-        int16_t nextPixelY = nextY / ballYScale;
+        int16_t nextPixelY = static_cast<uint8_t>(nextY) >> ballYShift;
         if(nextPixelY >= playerY - playerPad &&
            nextPixelY <= playerY + playerPad){
             ballSX = 1;
@@ -76,9 +77,9 @@ void BreakoutApp::bounceOrBreak(uint8_t& nextX, int8_t& nextY, int8_t& ballSX, i
     uint8_t ballX = TinyConsole::unpackX(console.state[BALLX_PLAYERY_BALLSX]);
     int8_t ballY = console.state[BALLY];
     uint8_t currentX = ballX;
-    int8_t currentY = ballY / ballYScale;
+    int8_t currentY = static_cast<uint8_t>(ballY) >> ballYShift;
     uint8_t nextPixelX = nextX;
-    int8_t nextPixelY = nextY / ballYScale;
+    int8_t nextPixelY = static_cast<uint8_t>(nextY) >> ballYShift;
     bool movedHorizontally = nextPixelX != currentX;
     bool movedVertically = nextPixelY != currentY;
     bool horizontalBrick = movedHorizontally &&
@@ -130,13 +131,13 @@ void BreakoutApp::advanceBricks(){
 void BreakoutApp::clearBall(){
     uint8_t ballX = TinyConsole::unpackX(console.state[BALLX_PLAYERY_BALLSX]);
     int8_t ballY = console.state[BALLY];
-    console.setPixel(ballX, ballY / ballYScale, false);
+    console.setPixel(ballX, static_cast<uint8_t>(ballY) >> ballYShift, false);
 }
 
 void BreakoutApp::drawBall(){
     uint8_t ballX = TinyConsole::unpackX(console.state[BALLX_PLAYERY_BALLSX]);
     int8_t ballY = console.state[BALLY];
-  console.setPixel(ballX, ballY / ballYScale, true);
+  console.setPixel(ballX, static_cast<uint8_t>(ballY) >> ballYShift, true);
 }
 
 void BreakoutApp::startLevel(){

@@ -6,142 +6,21 @@ namespace {
 uint8_t EEMEM savedProgress[5];
 }
 
-const uint8_t level1[] PROGMEM = {
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    
-    0b10010000,
-    0b10000000,
-    0b10010000,
-    0b10010000,
-    0b10010000,
-    0b10000001,
-    0b10000000,
-    0b11100000,
-    
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b11100000,
-    0b10000000,
-    0b10000001,
-    0b11110000,
-    
-    0b10000000,
-    0b10000001,
-    0b10000001,
-    0b11110000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b00000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    
-    0b10000000,
-    0b10010000,
-    0b10010000,
-    0b10000100,
-    0b10000101,
-    0b10000101,
-    0b00000100,
-    0b10000000,
-    
-    0b10000100,
-    0b10010100,
-    0b10000001,
-    0b10000001,
-    0b10010000,
-    0b10010000,
-    0b10000000,
-    0b10000000,
-    
-    0b10000000,
-    0b10010000,
-    0b10000000,
-    0b10010100,
-    0b10000000,
-    0b10010000,
-    0b10000001,
-    0b10000001,
-    
-    0b10010000,
-    0b10000000,
-    0b10000100,
-    0b10000100,
-    0b10000001,
-    0b10000100,
-    0b10010100,
-    0b10000100,
-    
-    0b10000001,
-    0b11000000,
-    0b11100000,
-    0b10000000,
-    0b11100000,
-    0b11000000,
-    0b10000000,
-    0b10000000,
-    
-    0b11000000,
-    0b11100000,
-    0b00000000,
-    0b11100000,
-    0b11000000,
-    0b10000000,
-    0b10000000,
-    0b11000000,
-    
-    0b10000000,
-    0b10010000,
-    0b10010000,
-    0b10000000,
-    0b10000001,
-    0b10000001,
-    0b10000000,
-    0b11100000,
-    
-    0b11000000,
-    0b11100000,
-    0b11110000,
-    0b11111000,
-    0b11111100,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
-    0b10000000,
+const uint8_t level1Palette[] PROGMEM = {
+    0x80, 0x90, 0x81, 0xE0, 0xF0, 0x00, 0x84,
+    0x85, 0x04, 0x94, 0xC0, 0xF8, 0xFC
 };
+
+// Two palette indices per byte: even column in the low nibble.
+const uint8_t level1[] PROGMEM = {
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x11, 0x21, 0x30,
+    0x00, 0x00, 0x03, 0x42, 0x20, 0x42, 0x00, 0x00, 0x00, 0x00, 0x05, 0x00,
+    0x10, 0x61, 0x77, 0x08, 0x96, 0x22, 0x11, 0x00, 0x10, 0x90, 0x10, 0x22,
+    0x01, 0x66, 0x62, 0x69, 0xA2, 0x03, 0xA3, 0x00, 0x3A, 0x35, 0x0A, 0xA0,
+    0x10, 0x01, 0x22, 0x30, 0x3A, 0xB4, 0x0C, 0x00, 0x00, 0x00, 0x00, 0x00
+};
+
+constexpr uint8_t LEVEL1_COLUMNS = 120;
 
 constexpr uint8_t GEOMETRY_MASK = 0b11111100;
 constexpr uint8_t META_MASK     = 0b00000011;
@@ -173,6 +52,7 @@ enum stateSlot {
     SEED3 = 6,
     LEVEL = 7,
     ENEMY_FLAGS = 8, // Low bits: right/up; high bits: flying. Clear = left/down, ground.
+    LIVES = 9,
     ENEMIES = 12, // FOUR BYTES
 };
 
@@ -275,9 +155,11 @@ static uint8_t proceduralColumn(uint8_t x, uint8_t level,
 
 uint8_t SrbApp::getLevelColumn(uint8_t x) {
     if (console.state[LEVEL] == 1) {
-        if (x >= sizeof(level1) + 16) return LEVEL_END;
-        if (x >= sizeof(level1)) return B10111100;
-        return pgm_read_byte(&level1[x]);
+        if (x >= LEVEL1_COLUMNS + 16) return LEVEL_END;
+        if (x >= LEVEL1_COLUMNS) return B10111100;
+        uint8_t packed = pgm_read_byte(&level1[x >> 1]);
+        uint8_t index = x & 1 ? packed >> 4 : packed & 0x0f;
+        return pgm_read_byte(&level1Palette[index]);
     }
     return proceduralColumn(x, console.state[LEVEL], console.state[SEED1],
                             console.state[SEED2], console.state[SEED3]);
@@ -544,17 +426,14 @@ void SrbApp::moveEnemies(){
 }
 
 void SrbApp::drawLives(uint8_t lives){
+    console.state[LIVES] = lives;
     for(uint8_t i = 1; i <= 4; i++){
         console.setPixel(console.Width - i, 0, lives >= i);
     }
 }
 
 uint8_t SrbApp::getLives(){
-    uint8_t lives = 0;
-    for(uint8_t i = 1; i <= 4; i++){
-        if (console.getPixel(console.Width - i, 0)) lives++;
-    }
-    return lives;
+    return console.state[LIVES];
 }
 
 void SrbApp::begin() {
