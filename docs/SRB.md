@@ -14,8 +14,8 @@ does not move to another screen column.
 
 There are 16 levels:
 
-1. Level 1 is a fixed, hand-authored level.
-2. Levels 2 through 16 are generated from the level number and three byte-sized
+1. Levels 1 and 8 are fixed, hand-authored levels.
+2. The other levels are generated from the level number and three byte-sized
    seeds.
 3. Completing level 16 wraps to level 1. This starts a new cycle rather than
    ending the game.
@@ -33,6 +33,9 @@ Gameplay is updated on a nominal 40 ms tick:
 - Jump input and gravity run every tick.
 - Horizontal movement is allowed every fourth tick, or every 160 ms while a
   direction remains held.
+- On level 8, the world instead attempts to scroll forward every fourth tick.
+  Terrain beside the player can temporarily block an attempt; gravity and the
+  following attempts continue normally.
 - Enemy patrol/flyer movement runs when the 16-step animation counter is zero,
   once every 640 ms. Ground enemies may still fall by one row on each 40 ms
   physics tick.
@@ -43,8 +46,9 @@ Gameplay is updated on a nominal 40 ms tick:
 
 | Context | Input | Effect |
 | --- | --- | --- |
-| Gameplay | Up | Move left / scroll the world right |
-| Gameplay | Down | Move right / scroll the world left |
+| Gameplay except level 8 | Up | Move left / scroll the world right |
+| Gameplay except level 8 | Down | Move right / scroll the world left |
+| Level 8 | Up / Down | Ignored; the level controls forward scrolling |
 | Gameplay | Action | Jump, but only when terrain is directly below the player |
 | Saved-game prompt | Up | Continue the saved level |
 | Saved-game prompt | Down | Clear saved progress and restart at level 1 |
@@ -87,7 +91,30 @@ later lookup return the end sentinel. Because completion occurs when the next
 right-edge column would be inserted, moving right completes level 1 when the
 player's world x is 124.
 
-### Procedural levels 2..16
+### Fixed on-rails level 8
+
+Level 8 replaces its procedural counterpart with a deterministic, enemy-free
+on-rails course. Action retains the normal jump behavior, but Up and Down are
+ignored. Every fourth gameplay tick the normal forward movement path is called,
+giving the level the same 160 ms cadence as held Down elsewhere. If terrain is
+immediately to the player's right, that scroll attempt is rejected normally;
+the cadence does not use a separate timer or state.
+
+Columns 0..17 form a descending entry ramp: three columns each have ground
+heights 6, 5, 4, 3, 2, and 1. Columns 18..238 are bottomless, one-pixel-thick
+platforms in fixed eight-column cells. Early cells have seven platform columns
+and a one-column gap; from column 82 onward they have six platform columns and
+a two-column gap. Their authored heights range over rows 4..7, and one early
+cell also includes a second platform two rows higher so more than one route is
+available. The height sequence becomes less forgiving toward the end.
+
+Four platform-row choices are packed into each of seven bytes in `PROGMEM`.
+Level 8 then reuses the standard `0xbc` ending at columns 239..254 and the end
+sentinel at column 255. It completes at world x = 243 through the same level
+transition and save path as procedural levels. The level ignores all three seed
+bytes, so continuing or retrying reproduces exactly the same course.
+
+### Procedural levels 2..7 and 9..16
 
 Every procedural level uses the same broad regions:
 
@@ -102,7 +129,7 @@ Every procedural level uses the same broad regions:
 The player completes a procedural level at world x = 243, when column 255 would
 enter at the right side of the display.
 
-The terrain family is selected by level number:
+For those levels, the terrain family is selected by level number:
 
 - Multiples of five (levels 5, 10, and 15) use bottomless platforms.
 - Other even levels use independently selected holes and steps.
@@ -208,7 +235,7 @@ to seed TinyConsole's 16-bit xorshift PRNG when a game launches. SRB draws three
 successive values in the range 0..254 whenever `startLevel(true)` is used.
 
 Fresh seeds are generated when starting a new game, advancing to another level,
-or wrapping from level 16 to level 1. Level 1 does not use them for terrain, and
+or wrapping from level 16 to level 1. Levels 1 and 8 do not use them for terrain, and
 advancing to level 2 replaces them again. A retry calls `startLevel(false)`, so
 the three seed bytes are retained and all column lookups reproduce the same
 terrain and enemy markers. Runtime enemy state is not retained: active enemies,
@@ -250,7 +277,7 @@ terrain, or another enemy, it reverses direction without moving and waits until
 the next enemy movement tick.
 
 The engine fully supports flyer metadata even though current shipped level data
-does not emit it.
+does not emit it. Level 8 emits no enemy metadata of either type.
 
 ### Scrolling and slot limits
 
@@ -328,8 +355,8 @@ saved progress. The save is level progress, not a mid-level snapshot.
 
 | Hardcoded | Procedural/runtime |
 | --- | --- |
-| Fixed level-1 terrain and patrol markers | Levels 2..16 terrain in columns 16..231 |
-| Level count and wrap at 16 | Patrol marker placement in generated terrain |
+| Fixed level-1 terrain and patrol markers | Procedural-level terrain in columns 16..231 |
+| Fixed level-8 ramp and packed platform heights | Patrol marker placement in generated terrain |
 | Safe start and fixed ending regions | Three seeds for every new level entry |
 | Player screen column, timing, physics constants, and three starting lives | Reconstructed columns during scrolling/backtracking |
 | Enemy movement rules, spawn coordinates, and four-slot limit | Enemy positions, direction, collisions, and slot availability |
@@ -344,7 +371,7 @@ SRB is shaped by the target's 8 KB flash and 512 bytes of SRAM:
 - The four enemies are byte-packed, and all direction/type flags share one byte.
 - Procedural generation replaces a stored map. Only three seed bytes and the
   current world x are needed to reconstruct terrain.
-- The authored level and palette live in `PROGMEM`, not SRAM.
+- The authored levels, palette, and packed platform rows live in `PROGMEM`, not SRAM.
 - Arithmetic is predominantly 8-bit. The procedural world deliberately uses the
   full byte x range and reserves 255 as its terminator.
 - Player vertical motion uses one-byte signed velocity and one-byte 4.4-style
@@ -367,11 +394,8 @@ The shared state layout is intentionally compact:
 | 10..11 | Unused by SRB |
 | 12..15 | Four packed enemies |
 
-The most recent historical result recorded in the `BACKLOG.md` Done section for
-the integrated, intensity-tuned generator was 7,906 bytes of flash and 57 bytes
-of static SRAM, leaving 286 bytes of flash at that revision. That number was not
-re-measured for this documentation-only change, but it illustrates why future
-mechanics should be evaluated for both flash and SRAM cost.
+The production build including level 8 uses 8,126 bytes of flash and 57 bytes
+of static SRAM, leaving 66 bytes of flash and 455 bytes of SRAM.
 
 ## Evolution and verification context
 
@@ -389,3 +413,11 @@ enemy arrangement is damage-free. The patrol regression harness under
 `test/test_srbpatrol/` covers the real game/launcher/framebuffer logic in an AVR
 instruction simulator; display electronics and subjective playability still
 require Wokwi or hardware testing.
+
+Level 8 was separately checked with an exhaustive search over world x, 4-bit
+fractional y, signed velocity, and four-tick movement phase. Each state tried
+jump and no-jump while applying the mandatory forward attempt on phase zero.
+The search found a route to the normal completion point without falling or
+using a recovery block. A column scan also found no empty player cell with both
+support below and blocking terrain one column up-right, the geometry pattern
+that could permanently stall autoscroll.
