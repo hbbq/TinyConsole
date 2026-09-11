@@ -1,12 +1,15 @@
 #include <Arduino.h>
+#include "appConf.h"
 #include "TinyRandom.h"
 #include "hardware/TinyConsole.h"
+#include "apps/GameFactory.h"
 #include "apps/GameIcons.h"
+#if ENABLE_SRB
 #include "apps/SrbApp.h"
-#include "appConf.h"
+#endif
 
 TinyConsole console;
-Game activeGame(console, GameId::Racer);
+Game activeGame(console, static_cast<GameId>(0));
 
 namespace {
 constexpr uint8_t iconY = 0; // Icons occupy rows 0..5; row 6 stays blank.
@@ -20,7 +23,9 @@ uint8_t selected = gameCount - 1;
 uint8_t scrollStep = 0;
 LauncherPhase phase = LauncherPhase::Ready;
 uint16_t seed = 0;
+#if ENABLE_SRB
 bool srbSaved = false;
+#endif
 
 uint8_t previousGame(uint8_t game) {
   return game == 0 ? gameCount - 1 : game - 1;
@@ -30,7 +35,9 @@ uint8_t nextGame(uint8_t game) {
 }
 uint8_t __attribute__((noinline)) launcherColumn(uint8_t game, uint8_t column) {
   uint8_t result = gameIconColumn(static_cast<GameId>(game), column);
+#if ENABLE_SRB
   if(srbSaved && game == static_cast<uint8_t>(GameId::Srb) && column == 3) result |= 1 << 6;
+#endif
   return result;
 }
 void drawIcon(uint8_t game, uint8_t x) {
@@ -108,7 +115,9 @@ void updateLauncher() {
 
 void setup() {
   console.begin();
+#if ENABLE_SRB
   srbSaved = SrbApp::hasSavedProgress(console);
+#endif
   console.setBrightness(0);
   drawLauncher();
   console.updateDisplay();
