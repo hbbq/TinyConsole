@@ -20,6 +20,9 @@ private:
 
     void moveBall();
     void bounceOrBreak(uint8_t& nextX, int8_t& nextY, int8_t& ballSX, int8_t& ballSY);
+    bool hasBrick(uint8_t x, uint8_t y);
+    void breakBrick(uint8_t x, uint8_t y);
+    void blinkExplosiveBrick();
     void advanceBricks();
     void clearBall();
     void drawBall();
