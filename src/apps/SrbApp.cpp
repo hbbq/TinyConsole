@@ -22,6 +22,11 @@ const uint8_t level1[] PROGMEM = {
 
 constexpr uint8_t LEVEL1_COLUMNS = 120;
 
+// Four two-bit platform rows per byte, from row 4 through row 7.
+const uint8_t level8Rows[] PROGMEM = {
+    0xaf, 0x9b, 0x27, 0xdb, 0x78, 0xdc, 0xc8
+};
+
 constexpr uint8_t GEOMETRY_MASK = 0b11111100;
 constexpr uint8_t META_MASK     = 0b00000011;
 // Metadata: 00 none, 01 patrol, 10 flyer, 11 reserved.
@@ -160,6 +165,20 @@ uint8_t SrbApp::getLevelColumn(uint8_t x) {
         uint8_t packed = pgm_read_byte(&level1[x >> 1]);
         uint8_t index = x & 1 ? packed >> 4 : packed & 0x0f;
         return pgm_read_byte(&level1Palette[index]);
+    }
+    if (console.state[LEVEL] == 8) {
+        if (x == 255) return LEVEL_END;
+        if (x >= 239) return 0xbc;
+        if (x < 18) return 0xfc << (x / 3);
+
+        uint8_t offset = x - 18;
+        uint8_t cell = offset >> 3;
+        if ((offset & 7) >= (x < 82 ? 7 : 6)) return 0;
+        uint8_t packed = pgm_read_byte(&level8Rows[cell >> 2]);
+        uint8_t column = 1 << (4 + ((packed >> ((cell & 3) * 2)) & 3));
+        // One early cell offers a second, higher route.
+        if (cell == 3) column |= column >> 2;
+        return column;
     }
     return proceduralColumn(x, console.state[LEVEL], console.state[SEED1],
                             console.state[SEED2], console.state[SEED3]);
@@ -480,8 +499,12 @@ void SrbApp::update() {
     doGravity();
 
     if ((animTick % 4) == 0) {
-        if ((buttons & BTN_UP) && move(false)) return;
-        if ((buttons & BTN_DOWN) && move(true)) return;
+        if (console.state[LEVEL] == 8) {
+            if (move(true)) return;
+        } else {
+            if ((buttons & BTN_UP) && move(false)) return;
+            if ((buttons & BTN_DOWN) && move(true)) return;
+        }
     }
 
     if (animTick == 0){

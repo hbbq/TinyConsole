@@ -10,8 +10,11 @@ constexpr uint8_t ballYShift = 4;
 enum StateSlot{
     BALLX_PLAYERY_BALLSX = 0,
     BALLY = 1,
-    BALLSY = 2
+    BALLSY = 2,
+    EXPLOSIVE_BRICK = 3
 };
+
+// Explosive brick position is packed as x * 8 + y; x = 0 is the paddle.
 
 void BreakoutApp::movePlayer(int deltaY){
   uint8_t ballX = TinyConsole::unpackX(console.state[BALLX_PLAYERY_BALLSX]);
@@ -83,29 +86,36 @@ void BreakoutApp::bounceOrBreak(uint8_t& nextX, int8_t& nextY, int8_t& ballSX, i
     bool movedHorizontally = nextPixelX != currentX;
     bool movedVertically = nextPixelY != currentY;
     bool horizontalBrick = movedHorizontally &&
-                           console.getPixel(nextPixelX, currentY);
+                           hasBrick(nextPixelX, currentY);
     bool verticalBrick = movedVertically &&
-                         console.getPixel(currentX, nextPixelY);
+                         hasBrick(currentX, nextPixelY);
+    uint8_t hitX;
+    uint8_t hitY;
 
     if(horizontalBrick && verticalBrick){
         int16_t horizontalSpeed = (ballSX < 0 ? -ballSX : ballSX) * ballYScale;
         int16_t verticalSpeed = ballSY < 0 ? -ballSY : ballSY;
 
         if(horizontalSpeed >= verticalSpeed){
-            console.setPixel(nextPixelX, currentY, false);
+            hitX = nextPixelX;
+            hitY = currentY;
             ballSX *= -1;
         }else{
-            console.setPixel(currentX, nextPixelY, false);
+            hitX = currentX;
+            hitY = nextPixelY;
             ballSY *= -1;
         }
     }else if(horizontalBrick){
-        console.setPixel(nextPixelX, currentY, false);
+        hitX = nextPixelX;
+        hitY = currentY;
         ballSX *= -1;
     }else if(verticalBrick){
-        console.setPixel(currentX, nextPixelY, false);
+        hitX = currentX;
+        hitY = nextPixelY;
         ballSY *= -1;
-    }else if(console.getPixel(nextPixelX, nextPixelY)){
-        console.setPixel(nextPixelX, nextPixelY, false);
+    }else if(hasBrick(nextPixelX, nextPixelY)){
+        hitX = nextPixelX;
+        hitY = nextPixelY;
 
         if(movedVertically && !movedHorizontally){
             ballSY *= -1;
@@ -119,13 +129,52 @@ void BreakoutApp::bounceOrBreak(uint8_t& nextX, int8_t& nextY, int8_t& ballSX, i
         return;
     }
 
+    breakBrick(hitX, hitY);
     nextX = ballX + ballSX;
     nextY = ballY + ballSY;
+}
+
+bool BreakoutApp::hasBrick(uint8_t x, uint8_t y){
+    uint8_t explosive = console.state[EXPLOSIVE_BRICK];
+    return console.getPixel(x, y) || explosive == (x << 3) + y;
+}
+
+void BreakoutApp::breakBrick(uint8_t x, uint8_t y){
+    uint8_t explosive = console.state[EXPLOSIVE_BRICK];
+    if(explosive != (x << 3) + y){
+        console.setPixel(x, y, false);
+        return;
+    }
+
+    uint8_t firstX = x - (x > 1);
+    uint8_t lastX = x + (x < console.Width - 1);
+    uint8_t firstY = y - (y > 0);
+    uint8_t lastY = y + (y < console.Height - 1);
+    for(uint8_t blastX = firstX; blastX <= lastX; blastX++){
+        for(uint8_t blastY = firstY; blastY <= lastY; blastY++){
+            console.setPixel(blastX, blastY, false);
+        }
+    }
+    uint8_t nextY = (y + 4) & 7;
+    console.state[EXPLOSIVE_BRICK] = (15 << 3) + nextY;
+}
+
+void BreakoutApp::blinkExplosiveBrick(){
+    uint8_t explosive = console.state[EXPLOSIVE_BRICK];
+    console.setPixel(explosive >> 3, explosive & 7,
+                     console.state[BALLX_PLAYERY_BALLSX] & 0x10);
 }
 
 void BreakoutApp::advanceBricks(){
     console.shiftLeft();
     console.insertColumn(console.Width - 1, B11111111);
+
+    uint8_t& explosive = console.state[EXPLOSIVE_BRICK];
+    if(explosive >= 0x10){
+        explosive -= 8;
+    }else{
+        explosive += 14 << 3;
+    }
 }
 
 void BreakoutApp::clearBall(){
@@ -155,6 +204,7 @@ void BreakoutApp::startLevel(){
     console.state[BALLX_PLAYERY_BALLSX] = TinyConsole::packXYB(ballX, playerY, sxToSxBit(ballSX));;
     console.state[BALLY] = ballY;
     console.state[BALLSY] = ballSY;
+    console.state[EXPLOSIVE_BRICK] = (12 << 3) + 3;
 }
 
 void BreakoutApp::begin(){
@@ -177,4 +227,5 @@ void BreakoutApp::update(){
     clearBall();
     moveBall();
     drawBall();
+    blinkExplosiveBrick();
 }

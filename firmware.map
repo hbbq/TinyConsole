@@ -305,7 +305,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x1efa
+.text           0x00000000     0x1ff8
  *(.vectors)
  .vectors       0x00000000       0x1e c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o
                 0x00000000                __vector_default
@@ -387,33 +387,33 @@ END GROUP
  .text.startup  0x00000aaa     0x1386 C:\Users\Henrik\AppData\Local\Temp\ccRN5U2A.ltrans0.ltrans.o
                 0x00000aaa                main
  .text.avr-libc
-                0x00001e30       0x10 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eerd_byte.o)
-                0x00001e30                eeprom_read_byte
+                0x00001f2e       0x10 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eerd_byte.o)
+                0x00001f2e                eeprom_read_byte
  .text.avr-libc
-                0x00001e40       0x12 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_block.o)
-                0x00001e40                eeprom_write_block
+                0x00001f3e       0x12 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_block.o)
+                0x00001f3e                eeprom_write_block
  .text.avr-libc
-                0x00001e52       0x1c c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_byte.o)
-                0x00001e52                eeprom_write_byte
-                0x00001e54                eeprom_write_r18
+                0x00001f50       0x1c c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_byte.o)
+                0x00001f50                eeprom_write_byte
+                0x00001f52                eeprom_write_r18
  .text.libgcc.mul
-                0x00001e6e       0x22 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
-                0x00001e6e                __mulhi3
+                0x00001f6c       0x22 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
+                0x00001f6c                __mulhi3
  .text.libgcc.div
-                0x00001e90       0x18 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
-                0x00001e90                __udivmodqi4
+                0x00001f8e       0x18 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
+                0x00001f8e                __udivmodqi4
  .text.libgcc.div
-                0x00001ea8       0x28 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
-                0x00001ea8                __udivmodhi4
+                0x00001fa6       0x28 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
+                0x00001fa6                __udivmodhi4
  .text.libgcc.div
-                0x00001ed0       0x26 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_divmodhi4.o)
-                0x00001ed0                _div
-                0x00001ed0                __divmodhi4
-                0x00001ef6                . = ALIGN (0x2)
+                0x00001fce       0x26 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_divmodhi4.o)
+                0x00001fce                _div
+                0x00001fce                __divmodhi4
+                0x00001ff4                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00001ef6        0x0 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
-                0x00001ef6                _exit
-                0x00001ef6                exit
+ .fini9         0x00001ff4        0x0 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+                0x00001ff4                _exit
+                0x00001ff4                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -432,11 +432,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00001ef6        0x4 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+ .fini0         0x00001ff4        0x4 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
  *(.fini0)
-                0x00001efa                _etext = .
+                0x00001ff8                _etext = .
 
-.data           0x00800060        0x4 load address 0x00001efa
+.data           0x00800060        0x4 load address 0x00001ff8
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
  .data          0x00800060        0x4 C:\Users\Henrik\AppData\Local\Temp\ccRN5U2A.ltrans0.ltrans.o
@@ -456,8 +456,8 @@ END GROUP
  *(.bss*)
  *(COMMON)
                 0x00800099                PROVIDE (__bss_end, .)
-                0x00001efa                __data_load_start = LOADADDR (.data)
-                0x00001efe                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001ff8                __data_load_start = LOADADDR (.data)
+                0x00001ffc                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800099        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
