@@ -17,17 +17,17 @@ c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_byte.o)
                               .pio\build\attiny85\src\apps\SrbApp.cpp.o (symbol from plugin) (eeprom_write_byte)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__mulhi3)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__mulhi3)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__udivmodqi4)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__udivmodqi4)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__udivmodhi4)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__udivmodhi4)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_divmodhi4.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__divmodhi4)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__divmodhi4)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_copy_data.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__do_copy_data)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__do_copy_data)
 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_clear_bss.o)
-                              C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o (__do_clear_bss)
+                              C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o (__do_clear_bss)
 
 Discarded input sections
 
@@ -182,7 +182,7 @@ Linker script and memory map
 
 LOAD c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o
 LOAD .pio\build\attiny85\src\TinyRandom.cpp.o
-LOAD C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+LOAD C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
 LOAD .pio\build\attiny85\src\apps\BreakoutApp.cpp.o
 LOAD .pio\build\attiny85\src\apps\Game.cpp.o
 LOAD .pio\build\attiny85\src\apps\GameFactory.cpp.o
@@ -305,7 +305,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x1efa
+.text           0x00000000     0x1ff8
  *(.vectors)
  .vectors       0x00000000       0x1e c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25/crtattiny85.o
                 0x00000000                __vector_default
@@ -321,7 +321,7 @@ END GROUP
  *libprintf_flt.a:*(.progmem.data)
  *libc.a:*(.progmem.data)
  *(.progmem*)
- .progmem.data  0x0000001e       0x7b C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+ .progmem.data  0x0000001e       0x7b C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
                 0x0000009a                . = ALIGN (0x2)
  *fill*         0x00000099        0x1 
  *(.jumptables)
@@ -380,40 +380,40 @@ END GROUP
                 0x000000d0                __vector_8
                 0x000000d0                __vector_14
                 0x000000d0                __vector_10
- .text          0x000000d2      0x9d8 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
-                0x00000a16                __vector_5
-                0x00000aaa                . = ALIGN (0x2)
+ .text          0x000000d2      0xa16 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
+                0x00000a54                __vector_5
+                0x00000ae8                . = ALIGN (0x2)
  *(.text.*)
- .text.startup  0x00000aaa     0x1386 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
-                0x00000aaa                main
+ .text.startup  0x00000ae8     0x1446 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
+                0x00000ae8                main
  .text.avr-libc
-                0x00001e30       0x10 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eerd_byte.o)
-                0x00001e30                eeprom_read_byte
+                0x00001f2e       0x10 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eerd_byte.o)
+                0x00001f2e                eeprom_read_byte
  .text.avr-libc
-                0x00001e40       0x12 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_block.o)
-                0x00001e40                eeprom_write_block
+                0x00001f3e       0x12 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_block.o)
+                0x00001f3e                eeprom_write_block
  .text.avr-libc
-                0x00001e52       0x1c c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_byte.o)
-                0x00001e52                eeprom_write_byte
-                0x00001e54                eeprom_write_r18
+                0x00001f50       0x1c c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/../../../../avr/lib/avr25\libattiny85.a(eewr_byte.o)
+                0x00001f50                eeprom_write_byte
+                0x00001f52                eeprom_write_r18
  .text.libgcc.mul
-                0x00001e6e       0x22 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
-                0x00001e6e                __mulhi3
+                0x00001f6c       0x22 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_mulhi3.o)
+                0x00001f6c                __mulhi3
  .text.libgcc.div
-                0x00001e90       0x18 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
-                0x00001e90                __udivmodqi4
+                0x00001f8e       0x18 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodqi4.o)
+                0x00001f8e                __udivmodqi4
  .text.libgcc.div
-                0x00001ea8       0x28 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
-                0x00001ea8                __udivmodhi4
+                0x00001fa6       0x28 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_udivmodhi4.o)
+                0x00001fa6                __udivmodhi4
  .text.libgcc.div
-                0x00001ed0       0x26 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_divmodhi4.o)
-                0x00001ed0                _div
-                0x00001ed0                __divmodhi4
-                0x00001ef6                . = ALIGN (0x2)
+                0x00001fce       0x26 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_divmodhi4.o)
+                0x00001fce                _div
+                0x00001fce                __divmodhi4
+                0x00001ff4                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x00001ef6        0x0 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
-                0x00001ef6                _exit
-                0x00001ef6                exit
+ .fini9         0x00001ff4        0x0 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+                0x00001ff4                _exit
+                0x00001ff4                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -432,14 +432,14 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x00001ef6        0x4 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
+ .fini0         0x00001ff4        0x4 c:/users/henrik/.platformio/packages/toolchain-atmelavr/bin/../lib/gcc/avr/7.3.0/avr25\libgcc.a(_exit.o)
  *(.fini0)
-                0x00001efa                _etext = .
+                0x00001ff8                _etext = .
 
-.data           0x00800060        0x4 load address 0x00001efa
+.data           0x00800060        0x4 load address 0x00001ff8
                 0x00800060                PROVIDE (__data_start, .)
  *(.data)
- .data          0x00800060        0x4 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+ .data          0x00800060        0x4 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
  *(.data*)
  *(.gnu.linkonce.d*)
  *(.rodata)
@@ -452,12 +452,12 @@ END GROUP
 .bss            0x00800064       0x35
                 0x00800064                PROVIDE (__bss_start, .)
  *(.bss)
- .bss           0x00800064       0x35 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+ .bss           0x00800064       0x35 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
  *(.bss*)
  *(COMMON)
                 0x00800099                PROVIDE (__bss_end, .)
-                0x00001efa                __data_load_start = LOADADDR (.data)
-                0x00001efe                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001ff8                __data_load_start = LOADADDR (.data)
+                0x00001ffc                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800099        0x0
                 [!provide]                PROVIDE (__noinit_start, .)
@@ -468,7 +468,7 @@ END GROUP
 
 .eeprom         0x00810000        0x5
  *(.eeprom*)
- .eeprom        0x00810000        0x5 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+ .eeprom        0x00810000        0x5 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
                 0x00810005                __eeprom_end = .
 
 .fuse
@@ -506,7 +506,7 @@ END GROUP
 
 .comment        0x00000000       0x11
  *(.comment)
- .comment       0x00000000       0x11 C:\Users\Henrik\AppData\Local\Temp\ccIbGznA.ltrans0.ltrans.o
+ .comment       0x00000000       0x11 C:\Users\Henrik\AppData\Local\Temp\ccHExpsE.ltrans0.ltrans.o
                                  0x12 (size before relaxing)
 
 .note.gnu.avr.deviceinfo
