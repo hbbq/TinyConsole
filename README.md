@@ -9,13 +9,17 @@ within 8 KB of flash and 512 bytes of SRAM.
 
 ## Games
 
-### SRB
+TinyConsole currently includes five apps. Each app has its own gameplay and
+maintenance reference:
 
-A scrolling platform game with level progression, procedural
-generation, enemies and persistent progress.
-
-See [SRB documentation](docs/SRB.md) for gameplay mechanics,
-level generation and implementation details.
+- [Racer](docs/Racer.md) - steer through an endless, accelerating track.
+- [Breakout](docs/Breakout.md) - clear a brick wall with a paddle, ball, and
+  explosive bricks.
+- [SkyHop](docs/SkyHop.md) - flap through randomly positioned gaps.
+- [Shift](docs/Shift.md) - rotate rows to form blinking groups and clear the
+  board.
+- [SRB](docs/SRB.md) - traverse scrolling levels with procedural terrain,
+  enemies, and persistent progress.
 
 ## Hardware
 

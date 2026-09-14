@@ -42,7 +42,7 @@ Do not introduce abstractions, frameworks, or generalized infrastructure unless 
 
 ## Documentation
 
-Game-specific technical documentation lives under `docs/`. When an implementation change affects documented gameplay behavior, update the relevant documentation in the same change. The current implementation is the source of truth. The `BACKLOG.md` Done section may provide historical context, but should not normally be required for future implementation tasks.
+Game-specific technical documentation lives under `docs/`. Every app is expected to have a corresponding Markdown file named for the app, and new apps must add one. When an implementation change affects documented gameplay behavior or design, update the relevant app document in the same change. The current implementation is the source of truth. The `BACKLOG.md` Done section may provide historical context, but should not normally be required for future implementation tasks.
 
 ## Testing Guidelines
 
