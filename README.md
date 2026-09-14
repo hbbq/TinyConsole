@@ -28,3 +28,7 @@ hardware and firmware design.
 ## Building
 
 The firmware is built using PlatformIO.
+
+Individual games can be omitted to save flash by setting their `ENABLE_*`
+flag to `0` in `src/appConf.h`. The launcher automatically shows only the
+enabled games; at least one game must remain enabled.

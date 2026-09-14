@@ -1,15 +1,26 @@
 #pragma once
 
 #include <Arduino.h>
+#include "appConf.h"
 
 class TinyConsoleGameApi;
 
 enum class GameId : uint8_t {
+#if ENABLE_RACER
     Racer,
+#endif
+#if ENABLE_BREAKOUT
     Breakout,
+#endif
+#if ENABLE_SKYHOP
     SkyHop,
+#endif
+#if ENABLE_SHIFT
     Shift,
+#endif
+#if ENABLE_SRB
     Srb,
+#endif
     Count
 };
 
